@@ -1,0 +1,74 @@
+{
+  "environments": [
+    {
+      "id": "production",
+      "name": "Production",
+      "region": "us-east-1",
+      "source": {
+        "branch": "main"
+      },
+      "services": [
+        {
+          "id": "submind-web",
+          "name": "SubMind Web",
+          "type": "fargate",
+          "cpu": 0.5,
+          "memory": 1024,
+          "domain": "submind.example.com",
+          "minInstances": 1,
+          "maxInstances": 3,
+          "buildCommand": "npm run build",
+          "startCommand": "npm start",
+          "envVariables": {
+            "DATABASE_URL": {
+              "type": "secret",
+              "value": "postgresql://..."
+            },
+            "REDIS_URL": {
+              "type": "secret",
+              "value": "redis://..."
+            }
+          }
+        },
+        {
+          "id": "submind-worker",
+          "name": "SubMind Worker",
+          "type": "fargate",
+          "cpu": 0.5,
+          "memory": 1024,
+          "minInstances": 1,
+          "maxInstances": 5,
+          "startCommand": "node workers/taskProcessor.js",
+          "envVariables": {
+            "DATABASE_URL": {
+              "type": "secret",
+              "value": "postgresql://..."
+            },
+            "REDIS_URL": {
+              "type": "secret",
+              "value": "redis://..."
+            }
+          }
+        },
+        {
+          "id": "submind-db",
+          "name": "SubMind Database",
+          "type": "rds",
+          "engine": "postgres",
+          "version": "14",
+          "size": "db.t3.micro",
+          "storage": 20
+        },
+        {
+          "id": "submind-redis",
+          "name": "SubMind Redis",
+          "type": "elasticache",
+          "engine": "redis",
+          "version": "6.x",
+          "size": "cache.t3.micro",
+          "numNodes": 1
+        }
+      ]
+    }
+  ]
+}
